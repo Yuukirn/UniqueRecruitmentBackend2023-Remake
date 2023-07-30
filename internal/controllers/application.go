@@ -34,18 +34,15 @@ func CreateApplication(c *gin.Context) {
 		return
 	}
 
-	//TODO(wwb)
-	//when sso done,fix this filePath->user's uid
+	uid := common.GetUID(c)
 	// file path example: 2023秋(rname)/web(group)/wwb(userID)/filename
-	filePath := fmt.Sprintf("%s/%s/%s/%s", recruitment.Name, req.Group, "thisisuserid", req.Resume.Filename)
+	filePath := fmt.Sprintf("%s/%s/%s/%s", recruitment.Name, req.Group, uid, req.Resume.Filename)
 
 	log.Println(filePath)
 	//resume upload to COS
 	err = upLoadAndSaveFileToCos(req.Resume, filePath)
 	if err != nil {
-		//TODO(wwb)
-		//when sso done,fix this filePath->user's uid
-		common.Error(c, error2.UpLoadFileError.WithData("thisisuserid").WithDetail(err.Error()))
+		common.Error(c, error2.UpLoadFileError.WithData(uid).WithDetail(err.Error()))
 		return
 	}
 
@@ -104,13 +101,12 @@ func UpdateApplicationById(c *gin.Context) {
 		return
 	}
 
+	uid := common.GetUID(c)
 	filePath := ""
 	if req.Resume != nil {
-		filePath = fmt.Sprintf("%s/%s/%s/%s", recruitment.Name, req.Group, "thisisuserid", req.Resume.Filename)
+		filePath = fmt.Sprintf("%s/%s/%s/%s", recruitment.Name, req.Group, uid, req.Resume.Filename)
 		if err := upLoadAndSaveFileToCos(req.Resume, filePath); err != nil {
-			//TODO(wwb)
-			//when sso done,fix this filePath->user's uid
-			common.Error(c, error2.UpLoadFileError.WithData("thisisuserid").WithDetail(err.Error()))
+			common.Error(c, error2.UpLoadFileError.WithData(uid).WithDetail(err.Error()))
 			return
 		}
 	}
